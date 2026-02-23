@@ -25,6 +25,7 @@ const Index = () => {
   const [phase, setPhase] = useState<"boot" | "lock" | "desktop">("boot");
   const [isDark, setIsDark] = useState(false);
   const [startMenuOpen, setStartMenuOpen] = useState(false);
+  const [wallpaperIndex, setWallpaperIndex] = useState(0);
   const wm = useWindowManager();
 
   useEffect(() => {
@@ -49,7 +50,7 @@ const Index = () => {
 
   return (
     <div className="h-screen w-screen overflow-hidden">
-      <Desktop isDark={isDark} onOpenApp={handleOpenApp} />
+      <Desktop isDark={isDark} onOpenApp={handleOpenApp} wallpaperIndex={wallpaperIndex} onChangeWallpaper={setWallpaperIndex} />
 
       {/* Windows */}
       {wm.windows.map((win) => (
