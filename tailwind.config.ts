@@ -80,6 +80,10 @@ export default {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        "android-slide-in": {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -90,6 +94,7 @@ export default {
         "window-open": "window-open 0.2s ease-out forwards",
         "start-menu-open": "start-menu-open 0.2s ease-out forwards",
         "fade-in": "fade-in 0.3s ease-out forwards",
+        "android-slide-in": "android-slide-in 0.25s ease-out forwards",
       },
     },
   },

@@ -5,12 +5,14 @@ import Desktop from "@/components/windows11/Desktop";
 import Taskbar from "@/components/windows11/Taskbar";
 import StartMenu from "@/components/windows11/StartMenu";
 import Window from "@/components/windows11/Window";
+import AndroidLayout from "@/components/android/AndroidLayout";
 import AboutMe from "@/components/windows11/apps/AboutMe";
 import Projects from "@/components/windows11/apps/Projects";
 import Resume from "@/components/windows11/apps/Resume";
 import Skills from "@/components/windows11/apps/Skills";
 import Contact from "@/components/windows11/apps/Contact";
 import { useWindowManager } from "@/hooks/useWindowManager";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { AppId } from "@/data/portfolio";
 
 const appComponents: Record<AppId, React.ReactNode> = {
@@ -27,6 +29,7 @@ const Index = () => {
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [wallpaperIndex, setWallpaperIndex] = useState(0);
   const wm = useWindowManager();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
@@ -48,11 +51,14 @@ const Index = () => {
     return <LockScreen onUnlock={() => setPhase("desktop")} />;
   }
 
+  if (isMobile) {
+    return <AndroidLayout isDark={isDark} wallpaperIndex={wallpaperIndex} />;
+  }
+
   return (
     <div className="h-screen w-screen overflow-hidden">
       <Desktop isDark={isDark} onOpenApp={handleOpenApp} wallpaperIndex={wallpaperIndex} onChangeWallpaper={setWallpaperIndex} />
 
-      {/* Windows */}
       {wm.windows.map((win) => (
         <Window
           key={win.id}
