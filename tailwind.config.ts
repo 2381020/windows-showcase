@@ -81,8 +81,12 @@ export default {
           "100%": { opacity: "1" },
         },
         "android-slide-in": {
-          "0%": { transform: "translateX(100%)" },
-          "100%": { transform: "translateX(0)" },
+          "0%": { transform: "translateX(100%)", opacity: "0.8" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        "android-slide-out": {
+          "0%": { transform: "translateX(0)", opacity: "1" },
+          "100%": { transform: "translateX(100%)", opacity: "0.8" },
         },
       },
       animation: {
@@ -95,6 +99,7 @@ export default {
         "start-menu-open": "start-menu-open 0.2s ease-out forwards",
         "fade-in": "fade-in 0.3s ease-out forwards",
         "android-slide-in": "android-slide-in 0.25s ease-out forwards",
+        "android-slide-out": "android-slide-out 0.25s ease-in forwards",
       },
     },
   },
