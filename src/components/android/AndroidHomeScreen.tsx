@@ -1,6 +1,24 @@
-import { useState, useRef, useCallback, type TouchEvent } from "react";
+import { useState, useRef, useCallback, useEffect, type TouchEvent } from "react";
 import { desktopApps, type AppId } from "@/data/portfolio";
 import { Search } from "lucide-react";
+
+const ClockWidget = () => {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+  const dateStr = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+  return (
+    <div className="mx-4 mt-6 rounded-3xl bg-[hsl(0,0%,0%,0.3)] backdrop-blur-xl p-6 flex flex-col items-center gap-1">
+      <span className="text-5xl font-thin text-[hsl(0,0%,100%)] tracking-wider">{timeStr}</span>
+      <span className="text-sm text-[hsl(0,0%,100%,0.7)] mt-1">{dateStr}</span>
+    </div>
+  );
+};
 
 interface AndroidHomeScreenProps {
   onOpenApp: (id: AppId) => void;
@@ -118,9 +136,7 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
                   ))}
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-32">
-                  <span className="text-sm text-[hsl(0,0%,100%,0.4)]">No more apps</span>
-                </div>
+                <ClockWidget />
               )}
             </div>
           ))}
