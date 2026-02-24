@@ -543,15 +543,15 @@ const AndroidHomeScreen = ({
       </div>
 
       {isSettingsOpen && (
-        <div className="fixed inset-0 z-50 bg-[hsl(0,0%,0%,0.45)] backdrop-blur-sm p-4 flex items-end">
-          <div className="w-full rounded-3xl bg-[hsl(0,0%,8%,0.9)] border border-[hsl(0,0%,100%,0.15)] p-5 text-[hsl(0,0%,100%)]">
+        <div className="fixed inset-0 z-50 bg-[hsl(0,0%,0%,0.35)] backdrop-blur-sm p-4 flex items-end">
+          <div className="w-full rounded-3xl bg-card/95 border border-border p-5 text-card-foreground">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Settings className="h-5 w-5" />
                 Settings
               </h3>
               <button
-                className="h-8 w-8 rounded-full hover:bg-[hsl(0,0%,100%,0.15)] flex items-center justify-center"
+                className="h-8 w-8 rounded-full hover:bg-win-hover flex items-center justify-center"
                 onClick={() => setIsSettingsOpen(false)}
                 aria-label="Close settings"
               >
@@ -559,7 +559,7 @@ const AndroidHomeScreen = ({
               </button>
             </div>
             <div className="space-y-3 text-sm">
-              <div className="rounded-xl bg-[hsl(0,0%,100%,0.08)] p-3">
+              <div className="rounded-xl bg-secondary/70 p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <LayoutGrid className="h-4 w-4" />
                   <span>View</span>
@@ -568,8 +568,8 @@ const AndroidHomeScreen = ({
                   <button
                     className={`rounded-lg px-2 py-1.5 text-xs border ${
                       iconSize === "large"
-                        ? "bg-[hsl(0,0%,100%,0.2)] border-[hsl(0,0%,100%,0.35)]"
-                        : "bg-[hsl(0,0%,100%,0.06)] border-transparent"
+                        ? "bg-primary/20 border-primary/60 text-foreground"
+                        : "bg-background/70 border-transparent text-foreground"
                     }`}
                     onClick={() => handleChangeIconSize("large")}
                   >
@@ -578,8 +578,8 @@ const AndroidHomeScreen = ({
                   <button
                     className={`rounded-lg px-2 py-1.5 text-xs border ${
                       iconSize === "medium"
-                        ? "bg-[hsl(0,0%,100%,0.2)] border-[hsl(0,0%,100%,0.35)]"
-                        : "bg-[hsl(0,0%,100%,0.06)] border-transparent"
+                        ? "bg-primary/20 border-primary/60 text-foreground"
+                        : "bg-background/70 border-transparent text-foreground"
                     }`}
                     onClick={() => handleChangeIconSize("medium")}
                   >
@@ -588,8 +588,8 @@ const AndroidHomeScreen = ({
                   <button
                     className={`rounded-lg px-2 py-1.5 text-xs border ${
                       iconSize === "small"
-                        ? "bg-[hsl(0,0%,100%,0.2)] border-[hsl(0,0%,100%,0.35)]"
-                        : "bg-[hsl(0,0%,100%,0.06)] border-transparent"
+                        ? "bg-primary/20 border-primary/60 text-foreground"
+                        : "bg-background/70 border-transparent text-foreground"
                     }`}
                     onClick={() => handleChangeIconSize("small")}
                   >
@@ -599,14 +599,14 @@ const AndroidHomeScreen = ({
               </div>
 
               <button
-                className="w-full rounded-xl bg-[hsl(0,0%,100%,0.08)] px-3 py-2 flex items-center gap-2"
+                className="w-full rounded-xl bg-secondary/70 px-3 py-2 flex items-center gap-2 hover:bg-win-hover transition-colors"
                 onClick={handleRefreshIcons}
               >
                 <RefreshCw className="h-4 w-4" />
                 Refresh
               </button>
 
-              <div className="rounded-xl bg-[hsl(0,0%,100%,0.08)] p-3">
+              <div className="rounded-xl bg-secondary/70 p-3">
                 <div className="flex items-center gap-2 mb-2">
                   <Image className="h-4 w-4" />
                   <span>Change Wallpaper</span>
@@ -615,11 +615,11 @@ const AndroidHomeScreen = ({
                   {wallpapers.map((wp, i) => (
                     <button
                       key={wp.gradient}
-                      className="w-full rounded-lg bg-[hsl(0,0%,100%,0.06)] px-2 py-1.5 text-left flex items-center gap-2"
+                      className="w-full rounded-lg bg-background/70 hover:bg-win-hover px-2 py-1.5 text-left flex items-center gap-2 transition-colors"
                       onClick={() => onChangeWallpaper(i)}
                     >
                       <div
-                        className="h-4 w-4 rounded-sm border border-[hsl(0,0%,100%,0.25)]"
+                        className="h-4 w-4 rounded-sm border border-border"
                         style={{ background: getWallpaperGradient(i, false) }}
                       />
                       <span className="text-xs flex-1">{wp.name}</span>
@@ -629,7 +629,7 @@ const AndroidHomeScreen = ({
                 </div>
               </div>
 
-              <div className="rounded-xl bg-[hsl(0,0%,100%,0.08)] p-3">
+              <div className="rounded-xl bg-secondary/70 p-3">
                 <div className="flex items-center gap-2 mb-2">
                   {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
                   <span>Theme</span>
@@ -638,8 +638,8 @@ const AndroidHomeScreen = ({
                   <button
                     className={`rounded-lg px-2 py-1.5 text-xs border flex items-center justify-center gap-1.5 ${
                       !isDark
-                        ? "bg-[hsl(0,0%,100%,0.2)] border-[hsl(0,0%,100%,0.35)]"
-                        : "bg-[hsl(0,0%,100%,0.06)] border-transparent"
+                        ? "bg-primary/20 border-primary/60 text-foreground"
+                        : "bg-background/70 border-transparent text-foreground"
                     }`}
                     onClick={() => onSetTheme(false)}
                   >
@@ -649,8 +649,8 @@ const AndroidHomeScreen = ({
                   <button
                     className={`rounded-lg px-2 py-1.5 text-xs border flex items-center justify-center gap-1.5 ${
                       isDark
-                        ? "bg-[hsl(0,0%,100%,0.2)] border-[hsl(0,0%,100%,0.35)]"
-                        : "bg-[hsl(0,0%,100%,0.06)] border-transparent"
+                        ? "bg-primary/20 border-primary/60 text-foreground"
+                        : "bg-background/70 border-transparent text-foreground"
                     }`}
                     onClick={() => onSetTheme(true)}
                   >
@@ -660,7 +660,7 @@ const AndroidHomeScreen = ({
                 </div>
               </div>
 
-              <div className="rounded-xl bg-[hsl(0,0%,100%,0.04)] px-3 py-2 text-[hsl(0,0%,100%,0.45)] flex items-center gap-2">
+              <div className="rounded-xl bg-muted/60 px-3 py-2 text-muted-foreground flex items-center gap-2">
                 <Monitor className="h-4 w-4" />
                 Display settings
                 <span className="ml-auto text-[10px]">Disabled</span>
