@@ -2,6 +2,7 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuPortal,
   ContextMenuSeparator,
   ContextMenuSub,
   ContextMenuSubContent,
@@ -44,32 +45,34 @@ const DesktopContextMenu = ({
             <LayoutGrid className="h-4 w-4" />
             View
           </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="bg-[hsl(0,0%,96%,0.85)] dark:bg-[hsl(0,0%,15%,0.85)] backdrop-blur-xl border-[hsl(0,0%,80%)] dark:border-[hsl(0,0%,25%)] rounded-lg">
-            <ContextMenuItem
-              className="gap-2"
-              onClick={() => onChangeIconSize("large")}
-            >
-              <LayoutGrid className="h-4 w-4" />
-              Large icons
-              {iconSize === "large" && <span className="ml-auto text-xs">✓</span>}
-            </ContextMenuItem>
-            <ContextMenuItem
-              className="gap-2"
-              onClick={() => onChangeIconSize("medium")}
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-              Medium icons
-              {iconSize === "medium" && <span className="ml-auto text-xs">✓</span>}
-            </ContextMenuItem>
-            <ContextMenuItem
-              className="gap-2"
-              onClick={() => onChangeIconSize("small")}
-            >
-              <LayoutList className="h-4 w-4" />
-              Small icons
-              {iconSize === "small" && <span className="ml-auto text-xs">✓</span>}
-            </ContextMenuItem>
-          </ContextMenuSubContent>
+          <ContextMenuPortal>
+            <ContextMenuSubContent className="bg-[hsl(0,0%,96%,0.85)] dark:bg-[hsl(0,0%,15%,0.85)] backdrop-blur-xl border-[hsl(0,0%,80%)] dark:border-[hsl(0,0%,25%)] rounded-lg">
+              <ContextMenuItem
+                className="gap-2"
+                onClick={() => onChangeIconSize("large")}
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Large icons
+                {iconSize === "large" && <span className="ml-auto text-xs">✓</span>}
+              </ContextMenuItem>
+              <ContextMenuItem
+                className="gap-2"
+                onClick={() => onChangeIconSize("medium")}
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+                Medium icons
+                {iconSize === "medium" && <span className="ml-auto text-xs">✓</span>}
+              </ContextMenuItem>
+              <ContextMenuItem
+                className="gap-2"
+                onClick={() => onChangeIconSize("small")}
+              >
+                <LayoutList className="h-4 w-4" />
+                Small icons
+                {iconSize === "small" && <span className="ml-auto text-xs">✓</span>}
+              </ContextMenuItem>
+            </ContextMenuSubContent>
+          </ContextMenuPortal>
         </ContextMenuSub>
 
         <ContextMenuSeparator />
@@ -86,22 +89,24 @@ const DesktopContextMenu = ({
             <Image className="h-4 w-4" />
             Change Wallpaper
           </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="bg-[hsl(0,0%,96%,0.85)] dark:bg-[hsl(0,0%,15%,0.85)] backdrop-blur-xl border-[hsl(0,0%,80%)] dark:border-[hsl(0,0%,25%)] rounded-lg">
-            {wallpapers.map((wp, i) => (
-              <ContextMenuItem
-                key={wp.gradient}
-                className="gap-2"
-                onClick={() => onChangeWallpaper(i)}
-              >
-                <div
-                  className="h-4 w-4 rounded-sm border border-[hsl(0,0%,70%)]"
-                  style={{ background: getWallpaperPreview(i, false) }}
-                />
-                {wp.name}
-                {wallpaperIndex === i && <span className="ml-auto text-xs">✓</span>}
-              </ContextMenuItem>
-            ))}
-          </ContextMenuSubContent>
+          <ContextMenuPortal>
+            <ContextMenuSubContent className="bg-[hsl(0,0%,96%,0.85)] dark:bg-[hsl(0,0%,15%,0.85)] backdrop-blur-xl border-[hsl(0,0%,80%)] dark:border-[hsl(0,0%,25%)] rounded-lg">
+              {wallpapers.map((wp, i) => (
+                <ContextMenuItem
+                  key={wp.gradient}
+                  className="gap-2"
+                  onClick={() => onChangeWallpaper(i)}
+                >
+                  <div
+                    className="h-4 w-4 rounded-sm border border-[hsl(0,0%,70%)]"
+                    style={{ background: getWallpaperPreview(i, false) }}
+                  />
+                  {wp.name}
+                  {wallpaperIndex === i && <span className="ml-auto text-xs">✓</span>}
+                </ContextMenuItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuPortal>
         </ContextMenuSub>
 
         <ContextMenuSeparator />
