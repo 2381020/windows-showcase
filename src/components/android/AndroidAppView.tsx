@@ -69,11 +69,11 @@ const AndroidAppView = ({ appId, onBack }: AndroidAppViewProps) => {
 
   return (
     <div
-      className="flex-1 min-h-0 flex flex-col bg-background/95 backdrop-blur-md text-foreground"
+      className="flex-1 min-h-0 flex flex-col bg-background text-foreground"
       style={{
         transform: `translateX(${swipeX}px)`,
         opacity: 1 - swipeProgress * 0.25,
-        transition: isSwiping ? "none" : "transform 220ms ease, opacity 220ms ease",
+        transition: isSwiping ? "none" : "transform 160ms ease, opacity 160ms ease",
       }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}

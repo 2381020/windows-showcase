@@ -10,9 +10,15 @@ interface AndroidLayoutProps {
   isDark: boolean;
   wallpaperIndex: number;
   onChangeWallpaper: (index: number) => void;
+  onSetTheme: (dark: boolean) => void;
 }
 
-const AndroidLayout = ({ isDark, wallpaperIndex, onChangeWallpaper }: AndroidLayoutProps) => {
+const AndroidLayout = ({
+  isDark,
+  wallpaperIndex,
+  onChangeWallpaper,
+  onSetTheme,
+}: AndroidLayoutProps) => {
   const [openApp, setOpenApp] = useState<AppId | null>(null);
   const [closing, setClosing] = useState(false);
 
@@ -26,7 +32,7 @@ const AndroidLayout = ({ isDark, wallpaperIndex, onChangeWallpaper }: AndroidLay
     setTimeout(() => {
       setOpenApp(null);
       setClosing(false);
-    }, 250);
+    }, 180);
   }, []);
 
   return (
@@ -37,20 +43,18 @@ const AndroidLayout = ({ isDark, wallpaperIndex, onChangeWallpaper }: AndroidLay
       <AndroidStatusBar />
 
       <div className="flex-1 min-h-0 relative overflow-hidden">
-        {/* Home screen always rendered behind */}
-        <div
-          className={`absolute inset-0 flex flex-col transition-all duration-300 ease-out ${
-            openApp && !closing
-              ? "scale-95 opacity-0 pointer-events-none"
-              : "scale-100 opacity-100 pointer-events-auto"
-          }`}
-        >
-          <AndroidHomeScreen
-            onOpenApp={handleOpenApp}
-            wallpaperIndex={wallpaperIndex}
-            onChangeWallpaper={onChangeWallpaper}
-          />
-        </div>
+        {/* Home screen: unmount while app is open for better performance */}
+        {(!openApp || closing) && (
+          <div className="absolute inset-0 flex flex-col">
+            <AndroidHomeScreen
+              onOpenApp={handleOpenApp}
+              wallpaperIndex={wallpaperIndex}
+              onChangeWallpaper={onChangeWallpaper}
+            isDark={isDark}
+            onSetTheme={onSetTheme}
+            />
+          </div>
+        )}
 
         {/* App overlay */}
         {openApp && (

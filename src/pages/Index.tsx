@@ -70,6 +70,7 @@ const Index = () => {
         isDark={isDark}
         wallpaperIndex={wallpaperIndex}
         onChangeWallpaper={setWallpaperIndex}
+        onSetTheme={setIsDark}
       />
     );
   }

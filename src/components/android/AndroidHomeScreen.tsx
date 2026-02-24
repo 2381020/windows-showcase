@@ -12,6 +12,8 @@ import {
   RefreshCw,
   Image,
   Monitor,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 interface PicsumPhoto {
@@ -27,7 +29,7 @@ const ClockWidget = () => {
   const [isLoadingPhoto, setIsLoadingPhoto] = useState(true);
 
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 1000);
+    const id = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -65,7 +67,7 @@ const ClockWidget = () => {
   const dateStr = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const currentPhoto = photos[photoIndex];
   const photoUrl = currentPhoto
-    ? `https://picsum.photos/id/${currentPhoto.id}/900/520`
+    ? `https://picsum.photos/id/${currentPhoto.id}/640/360`
     : null;
 
   return (
@@ -79,6 +81,8 @@ const ClockWidget = () => {
             src={photoUrl}
             alt={`Photo by ${currentPhoto.author}`}
             className="h-40 w-full object-cover"
+            loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="h-40 w-full flex items-center justify-center text-xs text-[hsl(0,0%,100%,0.75)]">
@@ -97,6 +101,8 @@ interface AndroidHomeScreenProps {
   onOpenApp: (id: AppId) => void;
   wallpaperIndex: number;
   onChangeWallpaper: (index: number) => void;
+  isDark: boolean;
+  onSetTheme: (dark: boolean) => void;
 }
 
 // Split apps into pages of 8 (4x2 grid per page)
@@ -169,6 +175,8 @@ const AndroidHomeScreen = ({
   onOpenApp,
   wallpaperIndex,
   onChangeWallpaper,
+  isDark,
+  onSetTheme,
 }: AndroidHomeScreenProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [translateX, setTranslateX] = useState(0);
@@ -618,6 +626,37 @@ const AndroidHomeScreen = ({
                       {wallpaperIndex === i && <span className="text-xs">✓</span>}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-[hsl(0,0%,100%,0.08)] p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                  <span>Theme</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    className={`rounded-lg px-2 py-1.5 text-xs border flex items-center justify-center gap-1.5 ${
+                      !isDark
+                        ? "bg-[hsl(0,0%,100%,0.2)] border-[hsl(0,0%,100%,0.35)]"
+                        : "bg-[hsl(0,0%,100%,0.06)] border-transparent"
+                    }`}
+                    onClick={() => onSetTheme(false)}
+                  >
+                    <Sun className="h-3.5 w-3.5" />
+                    Light mode
+                  </button>
+                  <button
+                    className={`rounded-lg px-2 py-1.5 text-xs border flex items-center justify-center gap-1.5 ${
+                      isDark
+                        ? "bg-[hsl(0,0%,100%,0.2)] border-[hsl(0,0%,100%,0.35)]"
+                        : "bg-[hsl(0,0%,100%,0.06)] border-transparent"
+                    }`}
+                    onClick={() => onSetTheme(true)}
+                  >
+                    <Moon className="h-3.5 w-3.5" />
+                    Dark mode
+                  </button>
                 </div>
               </div>
 
