@@ -2,20 +2,81 @@ import { useState, useRef, useCallback, useEffect, type TouchEvent } from "react
 import { desktopApps, type AppId } from "@/data/portfolio";
 import { Search, Phone, MessageSquare, Chrome, Camera, X } from "lucide-react";
 
+interface PicsumPhoto {
+  id: string;
+  author: string;
+  download_url: string;
+}
+
 const ClockWidget = () => {
   const [now, setNow] = useState(new Date());
+  const [photos, setPhotos] = useState<PicsumPhoto[]>([]);
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const [isLoadingPhoto, setIsLoadingPhoto] = useState(true);
+
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    const loadPhotos = async () => {
+      try {
+        setIsLoadingPhoto(true);
+        const res = await fetch("https://picsum.photos/v2/list?page=2&limit=12", {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error("Failed to load photos");
+        const data = (await res.json()) as PicsumPhoto[];
+        const valid = data.filter((item) => item.download_url);
+        setPhotos(valid);
+      } catch {
+        setPhotos([]);
+      } finally {
+        setIsLoadingPhoto(false);
+      }
+    };
+    void loadPhotos();
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (photos.length < 2) return;
+    const id = setInterval(() => {
+      setPhotoIndex((prev) => (prev + 1) % photos.length);
+    }, 60 * 60 * 1000);
+    return () => clearInterval(id);
+  }, [photos]);
+
   const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
   const dateStr = now.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const currentPhoto = photos[photoIndex];
+  const photoUrl = currentPhoto
+    ? `https://picsum.photos/id/${currentPhoto.id}/900/520`
+    : null;
 
   return (
     <div className="mx-4 mt-6 rounded-3xl bg-[hsl(0,0%,0%,0.3)] backdrop-blur-xl p-6 flex flex-col items-center gap-1">
       <span className="text-5xl font-thin text-[hsl(0,0%,100%)] tracking-wider">{timeStr}</span>
       <span className="text-sm text-[hsl(0,0%,100%,0.7)] mt-1">{dateStr}</span>
+      <div className="mt-4 w-full overflow-hidden rounded-2xl bg-[hsl(0,0%,100%,0.12)]">
+        {photoUrl ? (
+          <img
+            key={currentPhoto.id}
+            src={photoUrl}
+            alt={`Photo by ${currentPhoto.author}`}
+            className="h-40 w-full object-cover"
+          />
+        ) : (
+          <div className="h-40 w-full flex items-center justify-center text-xs text-[hsl(0,0%,100%,0.75)]">
+            {isLoadingPhoto ? "Memuat foto..." : "Foto tidak tersedia"}
+          </div>
+        )}
+        <div className="px-3 py-2 text-[11px] text-[hsl(0,0%,100%,0.75)] truncate">
+          {currentPhoto ? `Photo by ${currentPhoto.author}` : "Wallpaper feed"}
+        </div>
+      </div>
     </div>
   );
 };

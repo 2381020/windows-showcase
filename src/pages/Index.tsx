@@ -68,6 +68,7 @@ const Index = () => {
           onMaximize={wm.maximizeWindow}
           onFocus={wm.focusWindow}
           onUpdatePosition={wm.updatePosition}
+          onUpdateBounds={wm.updateBounds}
         >
           {appComponents[win.id]}
         </Window>
