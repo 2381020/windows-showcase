@@ -1,6 +1,18 @@
-import { useState, useRef, useCallback, useEffect, type TouchEvent } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo, type TouchEvent } from "react";
 import { desktopApps, type AppId } from "@/data/portfolio";
-import { Search, Phone, MessageSquare, Chrome, Camera, X } from "lucide-react";
+import { getWallpaperGradient } from "@/components/windows11/DesktopContextMenu";
+import {
+  Search,
+  Phone,
+  MessageSquare,
+  Camera,
+  Settings,
+  X,
+  LayoutGrid,
+  RefreshCw,
+  Image,
+  Monitor,
+} from "lucide-react";
 
 interface PicsumPhoto {
   id: string;
@@ -83,30 +95,115 @@ const ClockWidget = () => {
 
 interface AndroidHomeScreenProps {
   onOpenApp: (id: AppId) => void;
+  wallpaperIndex: number;
+  onChangeWallpaper: (index: number) => void;
 }
 
 // Split apps into pages of 8 (4x2 grid per page)
 const APPS_PER_PAGE = 8;
+const iconPadding = 8;
+type IconSize = "small" | "medium" | "large";
+type IconPosition = { x: number; y: number };
 
-const pages = (() => {
-  const result: (typeof desktopApps)[] = [];
-  for (let i = 0; i < desktopApps.length; i += APPS_PER_PAGE) {
-    result.push(desktopApps.slice(i, i + APPS_PER_PAGE));
-  }
-  // Always at least 2 pages for swipe feel (second page can be empty with a widget-like area)
-  if (result.length < 2) result.push([]);
-  return result;
-})();
+const wallpapers = [
+  { name: "Bloom (Default)", gradient: "default" },
+  { name: "Sunrise", gradient: "sunrise" },
+  { name: "Ocean", gradient: "ocean" },
+  { name: "Forest", gradient: "forest" },
+  { name: "Sunset", gradient: "sunset" },
+];
 
-const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
+const iconConfig: Record<
+  IconSize,
+  { box: number; iconClass: string; labelClass: string; stepX: number; stepY: number; startX: number; startY: number }
+> = {
+  small: {
+    box: 60,
+    iconClass: "text-xl",
+    labelClass: "text-[10px]",
+    stepX: 74,
+    stepY: 94,
+    startX: 6,
+    startY: 10,
+  },
+  medium: {
+    box: 72,
+    iconClass: "text-2xl",
+    labelClass: "text-[11px]",
+    stepX: 82,
+    stepY: 108,
+    startX: 6,
+    startY: 10,
+  },
+  large: {
+    box: 84,
+    iconClass: "text-3xl",
+    labelClass: "text-xs",
+    stepX: 94,
+    stepY: 122,
+    startX: 4,
+    startY: 8,
+  },
+};
+
+const getGridPosition = (index: number, size: IconSize): IconPosition => {
+  const config = iconConfig[size];
+  const col = index % 4;
+  const row = Math.floor(index / 4);
+  return {
+    x: config.startX + col * config.stepX,
+    y: config.startY + row * config.stepY,
+  };
+};
+
+const createArrangedIconPositions = (size: IconSize) => {
+  const positions: Partial<Record<AppId, IconPosition>> = {};
+  desktopApps.forEach((app, index) => {
+    const localIndex = index % APPS_PER_PAGE;
+    positions[app.id] = getGridPosition(localIndex, size);
+  });
+  return positions as Record<AppId, IconPosition>;
+};
+
+const AndroidHomeScreen = ({
+  onOpenApp,
+  wallpaperIndex,
+  onChangeWallpaper,
+}: AndroidHomeScreenProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [iconSize, setIconSize] = useState<IconSize>("medium");
+  const [iconPositions, setIconPositions] = useState<Record<AppId, IconPosition>>(
+    () => createArrangedIconPositions("medium")
+  );
+  const [draggingId, setDraggingId] = useState<AppId | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const dragMetaRef = useRef<{
+    id: AppId;
+    startX: number;
+    startY: number;
+    offsetX: number;
+    offsetY: number;
+    pageIndex: number;
+    moved: boolean;
+  } | null>(null);
+  const pageRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const iconMetrics = iconConfig[iconSize];
+
+  const pages = useMemo(() => {
+    const result: (typeof desktopApps)[] = [];
+    for (let i = 0; i < desktopApps.length; i += APPS_PER_PAGE) {
+      result.push(desktopApps.slice(i, i + APPS_PER_PAGE));
+    }
+    if (result.length < 2) result.push([]);
+    return result;
+  }, []);
 
   const filteredApps = searchQuery.trim()
     ? desktopApps.filter((app) =>
@@ -114,16 +211,27 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
       )
     : [];
 
+  const handleRefreshIcons = useCallback(() => {
+    setIconPositions(createArrangedIconPositions(iconSize));
+  }, [iconSize]);
+
+  const handleChangeIconSize = useCallback((size: IconSize) => {
+    setIconSize(size);
+    setIconPositions(createArrangedIconPositions(size));
+  }, []);
+
   const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (draggingId || isSettingsOpen) return;
     touchStart.current = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
       time: Date.now(),
     };
     setIsSwiping(true);
-  }, []);
+  }, [draggingId, isSettingsOpen]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (draggingId || isSettingsOpen) return;
     if (!touchStart.current) return;
     const dx = e.touches[0].clientX - touchStart.current.x;
     // Clamp: don't let swipe beyond first/last page
@@ -131,9 +239,10 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
     const raw = -currentPage * window.innerWidth + dx;
     const clamped = Math.max(-maxOffset, Math.min(0, raw));
     setTranslateX(clamped);
-  }, [currentPage]);
+  }, [currentPage, draggingId, isSettingsOpen, pages.length]);
 
   const handleTouchEnd = useCallback(() => {
+    if (draggingId || isSettingsOpen) return;
     if (!touchStart.current) return;
     const elapsed = Date.now() - touchStart.current.time;
     const threshold = window.innerWidth * 0.25;
@@ -153,7 +262,108 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
     setTranslateX(-newPage * window.innerWidth);
     setIsSwiping(false);
     touchStart.current = null;
-  }, [translateX, currentPage]);
+  }, [translateX, currentPage, draggingId, isSettingsOpen]);
+
+  const handleIconTouchStart = useCallback(
+    (e: TouchEvent<HTMLButtonElement>, appId: AppId, pageIndex: number) => {
+      if (isSearching) return;
+      e.stopPropagation();
+      const touch = e.touches[0];
+      const pageEl = pageRefs.current[pageIndex];
+      if (!pageEl) return;
+      const pageRect = pageEl.getBoundingClientRect();
+      const current = iconPositions[appId] ?? { x: 0, y: 0 };
+
+      dragMetaRef.current = {
+        id: appId,
+        startX: touch.clientX,
+        startY: touch.clientY,
+        offsetX: touch.clientX - (pageRect.left + current.x),
+        offsetY: touch.clientY - (pageRect.top + current.y),
+        pageIndex,
+        moved: false,
+      };
+      setDraggingId(appId);
+      setIsSwiping(false);
+    },
+    [iconPositions, isSearching]
+  );
+
+  const handleIconTouchMove = useCallback(
+    (e: TouchEvent<HTMLButtonElement>) => {
+      if (!dragMetaRef.current) return;
+      if (!draggingId) return;
+      const touch = e.touches[0];
+      e.stopPropagation();
+      const pageEl = pageRefs.current[dragMetaRef.current.pageIndex];
+      if (!pageEl) return;
+      const pageRect = pageEl.getBoundingClientRect();
+
+      const nextX = touch.clientX - pageRect.left - dragMetaRef.current.offsetX;
+      const nextY = touch.clientY - pageRect.top - dragMetaRef.current.offsetY;
+      const maxX = Math.max(iconPadding, pageRect.width - iconMetrics.box - iconPadding);
+      const maxY = Math.max(iconPadding, pageRect.height - iconMetrics.box - iconPadding);
+      const clampedX = Math.min(maxX, Math.max(iconPadding, nextX));
+      const clampedY = Math.min(maxY, Math.max(iconPadding, nextY));
+
+      const movedX = Math.abs(touch.clientX - dragMetaRef.current.startX);
+      const movedY = Math.abs(touch.clientY - dragMetaRef.current.startY);
+      if (movedX > 6 || movedY > 6) {
+        dragMetaRef.current.moved = true;
+      }
+
+      const draggedId = dragMetaRef.current.id;
+      setIconPositions((prev) => ({
+        ...prev,
+        [draggedId]: { x: clampedX, y: clampedY },
+      }));
+    },
+    [draggingId]
+  );
+
+  const handleIconTouchEnd = useCallback(
+    () => {
+      if (!dragMetaRef.current) return;
+      const { id, moved, pageIndex } = dragMetaRef.current;
+
+      if (moved) {
+        const pageApps = pages[pageIndex] ?? [];
+        const currentPos = iconPositions[id] ?? getGridPosition(0, iconSize);
+        let bestIndex = 0;
+        let bestDistance = Infinity;
+
+        for (let i = 0; i < APPS_PER_PAGE; i++) {
+          const slot = getGridPosition(i, iconSize);
+          const distance = (slot.x - currentPos.x) ** 2 + (slot.y - currentPos.y) ** 2;
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            bestIndex = i;
+          }
+        }
+
+        const snapTarget = getGridPosition(bestIndex, iconSize);
+        const swappedApp = pageApps.find((app) => {
+          if (app.id === id) return false;
+          const p = iconPositions[app.id] ?? getGridPosition(0, iconSize);
+          return Math.abs(p.x - snapTarget.x) < 1 && Math.abs(p.y - snapTarget.y) < 1;
+        });
+
+        setIconPositions((prev) => {
+          const next = { ...prev, [id]: snapTarget };
+          if (swappedApp) {
+            next[swappedApp.id] = prev[id] ?? currentPos;
+          }
+          return next;
+        });
+      } else {
+        onOpenApp(id);
+      }
+
+      dragMetaRef.current = null;
+      setDraggingId(null);
+    },
+    [iconPositions, iconSize, onOpenApp, pages]
+  );
 
   // Compute final transform
   const finalTranslate = isSwiping ? translateX : -currentPage * window.innerWidth;
@@ -238,23 +448,49 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
             <div
               key={pageIndex}
               className="min-w-full px-4 pt-4"
+              ref={(el) => {
+                pageRefs.current[pageIndex] = el;
+              }}
             >
               {pageApps.length > 0 ? (
-                <div className="grid grid-cols-4 gap-y-6 gap-x-2">
-                  {pageApps.map((app) => (
+                <div className="relative h-full min-h-[260px]">
+                  {pageApps.map((app, pageItemIndex) => {
+                    const localIndex = pageItemIndex;
+                    const fallback = getGridPosition(localIndex, iconSize);
+                    const fallbackX = fallback.x;
+                    const fallbackY = fallback.y;
+                    const pos = iconPositions[app.id] ?? { x: fallbackX, y: fallbackY };
+                    const isDraggingThis = draggingId === app.id;
+                    return (
                     <button
                       key={app.id}
-                      className="flex flex-col items-center gap-1.5 active:scale-90 transition-transform duration-150"
-                      onClick={() => onOpenApp(app.id)}
+                      data-draggable-app="true"
+                      className={`absolute flex flex-col items-center gap-1.5 transition-all duration-150 ${
+                        isDraggingThis ? "scale-105 z-10" : "active:scale-90"
+                      }`}
+                      style={{ left: pos.x, top: pos.y, width: iconMetrics.box }}
+                      onClick={() => {
+                        // Opening handled on touch end to avoid accidental open while dragging.
+                      }}
+                      onTouchStart={(e) => handleIconTouchStart(e, app.id, pageIndex)}
+                      onTouchMove={handleIconTouchMove}
+                      onTouchEnd={handleIconTouchEnd}
+                      onTouchCancel={handleIconTouchEnd}
                     >
-                      <div className="h-14 w-14 rounded-2xl bg-[hsl(0,0%,100%,0.15)] win-acrylic flex items-center justify-center shadow-lg">
-                        <span className="text-2xl">{app.icon}</span>
+                      <div
+                        className="rounded-2xl bg-[hsl(0,0%,100%,0.15)] win-acrylic flex items-center justify-center shadow-lg"
+                        style={{ width: iconMetrics.box - 16, height: iconMetrics.box - 16 }}
+                      >
+                        <span className={iconMetrics.iconClass}>{app.icon}</span>
                       </div>
-                      <span className="text-[11px] text-[hsl(0,0%,100%)] text-center leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                      <span
+                        className={`${iconMetrics.labelClass} text-[hsl(0,0%,100%)] text-center leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]`}
+                      >
                         {app.name}
                       </span>
                     </button>
-                  ))}
+                  );
+                  })}
                 </div>
               ) : (
                 <ClockWidget />
@@ -283,12 +519,13 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
         {[
           { icon: <Phone className="h-6 w-6" />, label: "Phone" },
           { icon: <MessageSquare className="h-6 w-6" />, label: "Messages" },
-          { icon: <Chrome className="h-6 w-6" />, label: "Chrome" },
+          { icon: <Settings className="h-6 w-6" />, label: "Settings", onClick: () => setIsSettingsOpen(true) },
           { icon: <Camera className="h-6 w-6" />, label: "Camera" },
         ].map((item) => (
           <button
             key={item.label}
             className="flex flex-col items-center gap-1 active:scale-90 transition-transform duration-150"
+            onClick={item.onClick}
           >
             <div className="h-12 w-12 rounded-2xl bg-[hsl(0,0%,100%,0.18)] flex items-center justify-center text-[hsl(0,0%,100%)]">
               {item.icon}
@@ -296,6 +533,103 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
           </button>
         ))}
       </div>
+
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-50 bg-[hsl(0,0%,0%,0.45)] backdrop-blur-sm p-4 flex items-end">
+          <div className="w-full rounded-3xl bg-[hsl(0,0%,8%,0.9)] border border-[hsl(0,0%,100%,0.15)] p-5 text-[hsl(0,0%,100%)]">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Settings
+              </h3>
+              <button
+                className="h-8 w-8 rounded-full hover:bg-[hsl(0,0%,100%,0.15)] flex items-center justify-center"
+                onClick={() => setIsSettingsOpen(false)}
+                aria-label="Close settings"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-3 text-sm">
+              <div className="rounded-xl bg-[hsl(0,0%,100%,0.08)] p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <LayoutGrid className="h-4 w-4" />
+                  <span>View</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    className={`rounded-lg px-2 py-1.5 text-xs border ${
+                      iconSize === "large"
+                        ? "bg-[hsl(0,0%,100%,0.2)] border-[hsl(0,0%,100%,0.35)]"
+                        : "bg-[hsl(0,0%,100%,0.06)] border-transparent"
+                    }`}
+                    onClick={() => handleChangeIconSize("large")}
+                  >
+                    Large
+                  </button>
+                  <button
+                    className={`rounded-lg px-2 py-1.5 text-xs border ${
+                      iconSize === "medium"
+                        ? "bg-[hsl(0,0%,100%,0.2)] border-[hsl(0,0%,100%,0.35)]"
+                        : "bg-[hsl(0,0%,100%,0.06)] border-transparent"
+                    }`}
+                    onClick={() => handleChangeIconSize("medium")}
+                  >
+                    Medium
+                  </button>
+                  <button
+                    className={`rounded-lg px-2 py-1.5 text-xs border ${
+                      iconSize === "small"
+                        ? "bg-[hsl(0,0%,100%,0.2)] border-[hsl(0,0%,100%,0.35)]"
+                        : "bg-[hsl(0,0%,100%,0.06)] border-transparent"
+                    }`}
+                    onClick={() => handleChangeIconSize("small")}
+                  >
+                    Small
+                  </button>
+                </div>
+              </div>
+
+              <button
+                className="w-full rounded-xl bg-[hsl(0,0%,100%,0.08)] px-3 py-2 flex items-center gap-2"
+                onClick={handleRefreshIcons}
+              >
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </button>
+
+              <div className="rounded-xl bg-[hsl(0,0%,100%,0.08)] p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Image className="h-4 w-4" />
+                  <span>Change Wallpaper</span>
+                </div>
+                <div className="space-y-2">
+                  {wallpapers.map((wp, i) => (
+                    <button
+                      key={wp.gradient}
+                      className="w-full rounded-lg bg-[hsl(0,0%,100%,0.06)] px-2 py-1.5 text-left flex items-center gap-2"
+                      onClick={() => onChangeWallpaper(i)}
+                    >
+                      <div
+                        className="h-4 w-4 rounded-sm border border-[hsl(0,0%,100%,0.25)]"
+                        style={{ background: getWallpaperGradient(i, false) }}
+                      />
+                      <span className="text-xs flex-1">{wp.name}</span>
+                      {wallpaperIndex === i && <span className="text-xs">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-[hsl(0,0%,100%,0.04)] px-3 py-2 text-[hsl(0,0%,100%,0.45)] flex items-center gap-2">
+                <Monitor className="h-4 w-4" />
+                Display settings
+                <span className="ml-auto text-[10px]">Disabled</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

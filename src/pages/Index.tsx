@@ -43,6 +43,19 @@ const Index = () => {
     [wm]
   );
 
+  const handleToggleTaskbarApp = useCallback(
+    (id: AppId) => {
+      const target = wm.windows.find((w) => w.id === id);
+      if (target && !target.minimized) {
+        wm.minimizeWindow(id);
+        return;
+      }
+      wm.openWindow(id);
+      setStartMenuOpen(false);
+    },
+    [wm]
+  );
+
   if (phase === "boot") {
     return <BootScreen onComplete={() => setPhase("lock")} />;
   }
@@ -52,7 +65,13 @@ const Index = () => {
   }
 
   if (isMobile) {
-    return <AndroidLayout isDark={isDark} wallpaperIndex={wallpaperIndex} />;
+    return (
+      <AndroidLayout
+        isDark={isDark}
+        wallpaperIndex={wallpaperIndex}
+        onChangeWallpaper={setWallpaperIndex}
+      />
+    );
   }
 
   return (
@@ -86,6 +105,7 @@ const Index = () => {
         onToggleTheme={() => setIsDark(!isDark)}
         onToggleStartMenu={() => setStartMenuOpen(!startMenuOpen)}
         onOpenApp={handleOpenApp}
+        onToggleApp={handleToggleTaskbarApp}
         startMenuOpen={startMenuOpen}
       />
     </div>

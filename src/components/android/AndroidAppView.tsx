@@ -47,7 +47,6 @@ const AndroidAppView = ({ appId, onBack }: AndroidAppViewProps) => {
       return;
     }
 
-    e.preventDefault();
     setSwipeX(Math.min(window.innerWidth, dx));
   }, []);
 
