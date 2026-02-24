@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, type TouchEvent } from "react";
 import { desktopApps, type AppId } from "@/data/portfolio";
-import { Search } from "lucide-react";
+import { Search, Phone, MessageSquare, Chrome, Camera } from "lucide-react";
 
 const ClockWidget = () => {
   const [now, setNow] = useState(new Date());
@@ -152,6 +152,25 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
               i === currentPage ? "w-4 bg-[hsl(0,0%,100%,0.9)]" : "w-1.5 bg-[hsl(0,0%,100%,0.4)]"
             }`}
           />
+        ))}
+      </div>
+
+      {/* Dock bar */}
+      <div className="mx-4 mb-3 rounded-3xl bg-[hsl(0,0%,100%,0.15)] backdrop-blur-xl px-6 py-3 flex items-center justify-around">
+        {[
+          { icon: <Phone className="h-6 w-6" />, label: "Phone" },
+          { icon: <MessageSquare className="h-6 w-6" />, label: "Messages" },
+          { icon: <Chrome className="h-6 w-6" />, label: "Chrome" },
+          { icon: <Camera className="h-6 w-6" />, label: "Camera" },
+        ].map((item) => (
+          <button
+            key={item.label}
+            className="flex flex-col items-center gap-1 active:scale-90 transition-transform duration-150"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-[hsl(0,0%,100%,0.18)] flex items-center justify-center text-[hsl(0,0%,100%)]">
+              {item.icon}
+            </div>
+          </button>
         ))}
       </div>
     </div>
