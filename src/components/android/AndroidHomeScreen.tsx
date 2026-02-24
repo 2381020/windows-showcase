@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, type TouchEvent } from "react";
 import { desktopApps, type AppId } from "@/data/portfolio";
-import { Search, Phone, MessageSquare, Chrome, Camera } from "lucide-react";
+import { Search, Phone, MessageSquare, Chrome, Camera, X } from "lucide-react";
 
 const ClockWidget = () => {
   const [now, setNow] = useState(new Date());
@@ -41,8 +41,17 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const filteredApps = searchQuery.trim()
+    ? desktopApps.filter((app) =>
+        app.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
     touchStart.current = {
@@ -94,12 +103,63 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
       <div className="px-4 pt-6 pb-2">
         <div className="flex items-center gap-2 bg-[hsl(0,0%,100%,0.15)] rounded-full px-4 py-2.5 win-acrylic">
           <Search className="h-4 w-4 text-[hsl(0,0%,100%,0.7)]" />
-          <span className="text-sm text-[hsl(0,0%,100%,0.5)]">Search apps...</span>
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            placeholder="Search apps..."
+            className="flex-1 bg-transparent text-sm text-[hsl(0,0%,100%)] placeholder:text-[hsl(0,0%,100%,0.5)] outline-none"
+            onFocus={() => setIsSearching(true)}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {isSearching && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setIsSearching(false);
+                searchInputRef.current?.blur();
+              }}
+            >
+              <X className="h-4 w-4 text-[hsl(0,0%,100%,0.7)]" />
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Swipeable pages */}
-      <div
+      {/* Search results overlay */}
+      {isSearching && (
+        <div className="flex-1 px-4 pt-2 overflow-auto">
+          {filteredApps.length > 0 ? (
+            <div className="grid grid-cols-4 gap-y-6 gap-x-2">
+              {filteredApps.map((app) => (
+                <button
+                  key={app.id}
+                  className="flex flex-col items-center gap-1.5 active:scale-90 transition-transform duration-150"
+                  onClick={() => {
+                    onOpenApp(app.id);
+                    setSearchQuery("");
+                    setIsSearching(false);
+                  }}
+                >
+                  <div className="h-14 w-14 rounded-2xl bg-[hsl(0,0%,100%,0.15)] win-acrylic flex items-center justify-center shadow-lg">
+                    <span className="text-2xl">{app.icon}</span>
+                  </div>
+                  <span className="text-[11px] text-[hsl(0,0%,100%)] text-center leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                    {app.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : searchQuery.trim() ? (
+            <p className="text-center text-sm text-[hsl(0,0%,100%,0.5)] mt-8">No apps found</p>
+          ) : (
+            <p className="text-center text-sm text-[hsl(0,0%,100%,0.5)] mt-8">Type to search apps</p>
+          )}
+        </div>
+      )}
+
+      {/* Swipeable pages (hidden during search) */}
+      {!isSearching && <div
         ref={containerRef}
         className="flex-1 overflow-hidden touch-pan-y"
         onTouchStart={handleTouchStart}
@@ -141,19 +201,21 @@ const AndroidHomeScreen = ({ onOpenApp }: AndroidHomeScreenProps) => {
             </div>
           ))}
         </div>
-      </div>
+      </div>}
 
       {/* Page dots */}
-      <div className="flex items-center justify-center gap-1.5 pb-2">
-        {pages.map((_, i) => (
-          <div
-            key={i}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              i === currentPage ? "w-4 bg-[hsl(0,0%,100%,0.9)]" : "w-1.5 bg-[hsl(0,0%,100%,0.4)]"
-            }`}
-          />
-        ))}
-      </div>
+      {!isSearching && (
+        <div className="flex items-center justify-center gap-1.5 pb-2">
+          {pages.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === currentPage ? "w-4 bg-[hsl(0,0%,100%,0.9)]" : "w-1.5 bg-[hsl(0,0%,100%,0.4)]"
+              }`}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Dock bar */}
       <div className="mx-4 mb-3 rounded-3xl bg-[hsl(0,0%,100%,0.15)] backdrop-blur-xl px-6 py-3 flex items-center justify-around">
