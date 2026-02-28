@@ -10,33 +10,40 @@ export const portfolioData = {
   ],
   projects: [
     {
-      title: "E-Commerce Platform",
-      description: "Full-stack e-commerce solution with payment integration, inventory management, and real-time order tracking.",
-      tech: ["React", "Node.js", "PostgreSQL", "Stripe"],
-      image: "🛒",
-      url: "#",
+      "title": "Gramedia Website Clone",
+      "description": "Cloning website Gramedia dengan fitur katalog buku, pencarian, detail produk, dan keranjang belanja.",
+      "tech": ["HTML", "CSS", "JavaScript"],
+      "image": "📚",
+      "url": "#"
     },
     {
-      title: "Task Management App",
-      description: "Collaborative task management tool with real-time updates, drag-and-drop boards, and team features.",
-      tech: ["React", "TypeScript", "Firebase"],
-      image: "📋",
-      url: "#",
+      "title": "Film Premiere Website",
+      "description": "Website untuk promosi perilisan film dengan trailer, jadwal tayang, galeri visual, dan fitur booking tiket.",
+      "tech": ["React", "Tailwind CSS"],
+      "image": "🎬",
+      "url": "#"
     },
     {
-      title: "Weather Dashboard",
-      description: "Beautiful weather dashboard with 7-day forecasts, interactive maps, and location-based alerts.",
-      tech: ["React", "OpenWeather API", "Chart.js"],
-      image: "🌤️",
-      url: "#",
+      "title": "Course Conversion System",
+      "description": "Sistem konversi mata kuliah untuk memetakan perbedaan kurikulum antar jurusan atau kampus, lengkap dengan dashboard admin.",
+      "tech": ["react", "TypesScript", "Tailwind CSS", "Supabase"],
+      "image": "📘",
+      "url": "#"
     },
     {
-      title: "Portfolio Generator",
-      description: "Drag-and-drop portfolio builder with customizable themes and one-click deployment.",
-      tech: ["Next.js", "Tailwind CSS", "Vercel"],
-      image: "🎨",
-      url: "#",
+      "title": "Library Management Website",
+      "description": "Website perpustakaan dengan fitur peminjaman buku, manajemen anggota, katalog digital, dan tracking pengembalian.",
+      "tech": ["C#", "ASP.NET", "MySQL"],
+      "image": "📖",
+      "url": "#"
     },
+    {
+      "title": "Restaurant Website",
+      "description": "Website restoran dengan menu digital, sistem reservasi, halaman promo, dan integrasi maps.",
+      "tech": ["React", "TypesScript", "Tailwind CSS", "NeonDB"],
+      "image": "🍽️",
+      "url": "#"
+    }
   ],
   experience: 
   [
