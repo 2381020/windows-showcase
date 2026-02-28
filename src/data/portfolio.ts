@@ -1,13 +1,12 @@
 export const portfolioData = {
-  name: "John Doe",
-  title: "Full Stack Developer",
-  bio: "Passionate developer with 5+ years of experience building web applications. I love creating intuitive user experiences and solving complex problems with clean code.",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=portfolio",
+  name: "Andrew Jonathan Jordy Simbolon",
+  "title": "IT Support & Junior Developer",
+  "bio": "Mahasiswa Teknik Informatika berpengalaman dalam instalasi hardware, maintenance software, dan troubleshooting perangkat IT. Terbiasa mendukung operasional kampus melalui penanganan masalah teknologi serta memiliki minat dalam pengembangan web dan desain digital.",
+  avatar: "https://avatars.githubusercontent.com/u/179359740?v=4",
   socialLinks: [
-    { name: "GitHub", url: "https://github.com", icon: "github" },
-    { name: "LinkedIn", url: "https://linkedin.com", icon: "linkedin" },
-    { name: "Twitter", url: "https://twitter.com", icon: "twitter" },
-    { name: "Email", url: "mailto:john@example.com", icon: "mail" },
+    { name: "GitHub", url: "https://github.com/2381020", icon: "github" },
+    { name: "LinkedIn", url: "https://www.linkedin.com/in/andrew-simbolon-811923326/", icon: "linkedin" },
+    { name: "Email", url: "mailto:andrew1simbolon@gmail.com", icon: "mail" },
   ],
   projects: [
     {
@@ -39,43 +38,45 @@ export const portfolioData = {
       url: "#",
     },
   ],
-  experience: [
+  experience: 
+  [
     {
-      role: "Senior Frontend Developer",
-      company: "Tech Corp",
-      period: "2022 - Present",
-      description: "Leading frontend development team, building scalable React applications.",
+      "role": "IT Support - Hardware & Software",
+      "company": "Universitas Advent Indonesia",
+      "period": "Mei 2025 - Sekarang",
+      "description": [
+        "Melakukan instalasi, perawatan, dan troubleshooting perangkat keras (PC, laptop, printer, jaringan internal).",
+        "Mengelola instalasi dan pembaruan perangkat lunak untuk kebutuhan operasional fakultas dan administrasi.",
+        "Mendukung dosen dan staf kampus dalam penggunaan perangkat teknologi serta memastikan kelancaran kegiatan akademik berbasis IT."
+      ]
     },
+  
     {
-      role: "Full Stack Developer",
-      company: "StartupXYZ",
-      period: "2020 - 2022",
-      description: "Built and maintained multiple web applications from scratch.",
-    },
-    {
-      role: "Junior Developer",
-      company: "WebAgency",
-      period: "2018 - 2020",
-      description: "Started career building responsive websites and web applications.",
-    },
+      "role": "Security (Satpam Kampus)",
+      "company": "Universitas Advent Indonesia",
+      "period": "April 2024 - Agustus 2024",
+      "description": [
+        "Melakukan pengawasan dan patroli rutin di area kampus untuk menjaga keamanan lingkungan akademik.",
+        "Berkoordinasi dengan tim keamanan lain untuk memastikan keamanan kegiatan dan acara kampus."
+      ]
+    }
   ],
   education: [
     {
-      degree: "B.S. Computer Science",
-      school: "University of Technology",
-      period: "2014 - 2018",
+      degree: "Informatics Engineering",
+      school: "Universitas Advent Indonesia",
+      period: "2023 - 2027",
     },
   ],
   skills: [
-    { name: "React", level: 95, category: "Frontend" },
-    { name: "TypeScript", level: 90, category: "Frontend" },
-    { name: "Tailwind CSS", level: 88, category: "Frontend" },
-    { name: "Node.js", level: 82, category: "Backend" },
-    { name: "PostgreSQL", level: 78, category: "Backend" },
+    { name: "React", level: 70, category: "Frontend" },
+    { name: "TypeScript", level: 70, category: "Frontend" },
+    { name: "Tailwind CSS", level: 80, category: "Frontend" },
+    { name: "Node.js", level: 70, category: "Backend" },
+    { name: "MySQL", level: 75, category: "Backend" },
     { name: "Python", level: 75, category: "Backend" },
-    { name: "Docker", level: 70, category: "DevOps" },
-    { name: "Git", level: 90, category: "Tools" },
-    { name: "Figma", level: 72, category: "Design" },
+    { name: "Git", level: 60, category: "Tools" },
+    { name: "Figma", level: 80, category: "Design" },
   ],
 };
 
