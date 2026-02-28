@@ -18,7 +18,7 @@ export const portfolioData = {
     },
     {
       "title": "Film Premiere Website",
-      "description": "Website untuk promosi perilisan film dengan trailer, jadwal tayang, galeri visual, dan fitur booking tiket.",
+      "description": "Website untuk promosi perilisan film dengan trailer, jadwal tayang, galeri visual.",
       "tech": ["React", "Tailwind CSS"],
       "image": "🎬",
       "url": "#"
